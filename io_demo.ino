@@ -22,3 +22,18 @@
  * Feb. 16, 2019
  * released to the public domain by the author
  */
+
+ // inputs
+ const int POTPIN = A0;
+ const int ACCELPIN = A1;
+ const int PHOTOPIN = A2;
+ const int IRPIN = A3;
+ const int INPUTMODEPIN = 2;
+ const int OUTPUTMODEPIN = 4;
+
+ // outputs
+ const int LEDPIN = 6         // must be a PWM pin to use analogWrite
+ const int SERVOPIN = 8;
+ const int SPEAKERPIN = 10;
+ const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
+ 
