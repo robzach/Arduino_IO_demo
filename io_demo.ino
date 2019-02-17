@@ -2,16 +2,16 @@
    I/O demonstration machine
 
    Push a button to select between inputs:
-   * potentiometer
-   * accelerometer (ADXL335 analog 3-axis)
-   * photoresistor
-   * IR proximity sensor (LTH-1550-01)
+     potentiometer
+     accelerometer (ADXL335 analog 3-axis)
+     photoresistor
+     IR proximity sensor (LTH-1550-01)
 
    Push a different button to select between outputs:
-   * hobby servomotor position
-   * LED brightness
-   * speaker pitch
-   * vibration motor intensity
+     hobby servomotor position
+     LED brightness
+     speaker pitch
+     vibration motor intensity
 
    The selected input will drive the selected output continuously.
 
@@ -35,7 +35,7 @@ const int OUTPUTMODEPIN = 4;
 
 // outputs
 const int LEDPIN = 6         // must be a PWM pin to use analogWrite
-const int SERVOPIN = 8;
+                   const int SERVOPIN = 8;
 const int SPEAKERPIN = 10;
 const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
 
@@ -47,10 +47,54 @@ void setup() {
   pinMode(ACCELPIN, INPUT);
   pinMode(PHOTOPIN, INPUT);
   pinMode(IRPIN, INPUT);
-  pinMode(INPUTMODEPIN, INPUT_PULLUP);
+  pinMode(INPUTMODEPIN, INPUT_PULLUP); // use INPUT_PULLUP for easier wiring
   pinMode(OUTPUTMODEPIN, INPUT_PULLUP);
   pinMode(LEDPIN, OUTPUT);
   pinMode(SPEAKERPIN, OUTPUT);
   pinMode(VIBRATIONPIN, OUTPUT);
   gaugeMotor.attach(SERVOPIN);
+}
+
+void loop() {
+  // mode variables (static type so they don't reset every loop)
+  static int inputMode, outputMode;
+
+  // read all sensors
+  int potVal = analogRead(POTPIN);
+  int accelVal = analogRead(ACCELPIN);
+  int photoVal = analogRead(PHOTOPIN);
+  int IRVal = analogRead(IRPIN);
+  // all these input values will be in range [0, 1023]
+
+  // increment modes as per button presses
+  // TO DO: debounce these
+  if (digitalRead(INPUTMODEPIN) == LOW){
+    inputMode++;
+    inputMode %= 4; // wrap back to 0 if at 4
+  }
+  if (digitalRead(OUTPUTMODEPIN) == LOW){
+    outputMode++;
+    outputMode %= 4; // wrap back to 0 if at 4
+  }
+
+  // read selected input into the master input variable
+  static int inVal;
+  switch (inputMode){
+    case 0: // potentiometer input
+      inVal = potVal;
+      break;
+    case 1: // accelerometer input
+      inVal = accelVal;
+      break;
+    case 2: // photoresistor input
+      inVal = photoVal;
+      break;
+    case 3: // IR proximity sensor input
+    default:
+      inVal = IRVal;
+      break;
+  }
+
+  // calculate output values for each device
+  int outVal = map(inVal, 0, 1023, 0, 255);
 }
