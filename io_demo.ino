@@ -34,8 +34,8 @@ const int INPUTMODEPIN = 2;
 const int OUTPUTMODEPIN = 4;
 
 // outputs
-const int LEDPIN = 6         // must be a PWM pin to use analogWrite
-                   const int SERVOPIN = 8;
+const int LEDPIN = 6;         // must be a PWM pin to use analogWrite
+const int SERVOPIN = 8;
 const int SPEAKERPIN = 10;
 const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
 
@@ -105,7 +105,7 @@ void loop() {
       analogWrite(LEDPIN, map(inVal, 0, 1023, 0, 255));
       break;
     case 1: // speaker output
-      tone(SPEAKERPIN, map(inVal, 0, 1023, 150, 3000);
+      tone(SPEAKERPIN, map(inVal, 0, 1023, 150, 3000));
       break;
     case 2: // vibration output
       noTone(SPEAKERPIN);
@@ -114,7 +114,7 @@ void loop() {
     case 3: // servo output
     default:
       noTone(SPEAKERPIN);
-      gauge.write(map(inVal, 0, 1023, 10, 170));
+      gaugeMotor.write(map(inVal, 0, 1023, 10, 170));
       break;
   }
 }
