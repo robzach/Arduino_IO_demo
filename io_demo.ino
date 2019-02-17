@@ -97,4 +97,24 @@ void loop() {
 
   // calculate output values for each device
   int outVal = map(inVal, 0, 1023, 0, 255);
+
+  // drive selected output with appropriate value
+  switch (outputMode){
+    case 0: // LED output
+      noTone(SPEAKERPIN); // turn off speaker (if on)
+      analogWrite(LEDPIN, map(inVal, 0, 1023, 0, 255));
+      break;
+    case 1: // speaker output
+      tone(SPEAKERPIN, map(inVal, 0, 1023, 150, 3000);
+      break;
+    case 2: // vibration output
+      noTone(SPEAKERPIN);
+      analogWrite(VIBRATIONPIN, map(inVal, 0, 1023, 0, 255));
+      break;
+    case 3: // servo output
+    default:
+      noTone(SPEAKERPIN);
+      gauge.write(map(inVal, 0, 1023, 10, 170));
+      break;
+  }
 }
