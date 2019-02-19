@@ -78,70 +78,77 @@ void loop() {
   // all these input values will be in range [0, 1023]
 
   // increment modes as per button presses
-  // TO DO: debounce these
   if (digitalRead(INPUTMODEPIN) == LOW) {
+    delay(5); // very simple debounce
     inputMode++;
     inputMode %= 4; // wrap back to 0 if at 4
   }
   if (digitalRead(OUTPUTMODEPIN) == LOW) {
+    delay(5); // very simple debounce
     outputMode++;
     outputMode %= 4; // wrap back to 0 if at 4
   }
 
   // read selected input into the master input variable
+  // scaled 0 to 1000
   static int inVal;
   switch (inputMode) {
     case 0: // potentiometer input
-      inVal = potVal;
+      inVal = map(potVal, 0, 1023, 0, 1000);
       inputName = "potentiometer";
       break;
     case 1: // accelerometer input
-      inVal = accelVal;
+      // the device only really runs in a small range normally
+      inVal = map(accelVal, 270, 370, 0, 1000);
       inputName = "accelerometer";
       break;
     case 2: // photoresistor input
-      inVal = photoVal;
+      inVal = map(photoVal, 0, 1023, 0, 1000);
       inputName = "photoresistor";
       break;
     case 3: // IR proximity sensor input
     default:
-      inVal = IRVal;
+      inVal = map(IRVal, 0, 1023, 0, 1000);
       inputName = "IR prox.";
       break;
   }
 
-  // calculate output values for each device
-  int outVal = map(inVal, 0, 1023, 0, 255);
+  // variable to hold calculated output value
+  int outVal;
 
   // drive selected output with appropriate value
   switch (outputMode) {
     case 0: // LED output
       noTone(SPEAKERPIN); // turn off speaker (if on)
-      analogWrite(LEDPIN, map(inVal, 0, 1023, 0, 255));
+      outVal = map(inVal, 0, 1000, 0, 255);
+      analogWrite(LEDPIN, outVal);
       outputName = "LED";
       break;
     case 1: // speaker output
-      tone(SPEAKERPIN, map(inVal, 0, 1023, 150, 3000));
+      outVal = map(inVal, 0, 1000, 150, 3000);
+      tone(SPEAKERPIN, outVal);
       outputName = "speaker";
       break;
     case 2: // vibration output
       noTone(SPEAKERPIN);
-      analogWrite(VIBRATIONPIN, map(inVal, 0, 1023, 0, 255));
+      outVal = map(inVal, 0, 1000, 0, 255);
+      analogWrite(VIBRATIONPIN, outVal);
       outputName = "vibration";
       break;
     case 3: // servo output
     default:
       noTone(SPEAKERPIN);
-      gaugeMotor.write(map(inVal, 0, 1023, 10, 170));
+      outVal = map(inVal, 0, 1000, 10, 170);
+      gaugeMotor.write(outVal);
       outputName = "servo";
       break;
   }
 
   // report serial and LCD feedback every WAIT milliseconds
-  if(millis() - timer >= WAIT){
+  if (millis() - timer >= WAIT) {
     Serial.println((String)"input: " + inputName + ", value = " + inVal + \
-    "; output: " + outputName + ", value = " + outVal);
-    timer = millis(); // reset the timer to the current time 
+                   "; output: " + outputName + ", value = " + outVal);
+    timer = millis(); // reset the timer to the current time
   }
 
 }
