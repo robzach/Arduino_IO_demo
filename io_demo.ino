@@ -129,11 +129,13 @@ void loop() {
   switch (outputMode) {
     case 0: // LED output
       noTone(SPEAKERPIN); // turn off speaker (if on)
+      analogWrite(VIBRATIONPIN, 0); // turn off motor (if on)
       outVal = map(inVal, 0, 1000, 0, 255);
       analogWrite(LEDPIN, outVal);
       outputName = "LED";
       break;
     case 1: // speaker output
+      analogWrite(VIBRATIONPIN, 0); // turn off motor (if on)
       outVal = map(inVal, 0, 1000, 150, 3000);
       tone(SPEAKERPIN, outVal);
       outputName = "speaker";
@@ -147,6 +149,7 @@ void loop() {
     case 3: // servo output
     default:
       noTone(SPEAKERPIN);
+      analogWrite(VIBRATIONPIN, 0); // turn off motor (if on)
       outVal = map(inVal, 0, 1000, 10, 170);
       gaugeMotor.write(outVal);
       outputName = "servo";
