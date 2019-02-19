@@ -102,7 +102,7 @@ void loop() {
     case 3: // IR proximity sensor input
     default:
       inVal = IRVal;
-      intputName = "IR prox.";
+      inputName = "IR prox.";
       break;
   }
 
