@@ -99,7 +99,7 @@ void loop() {
       break;
     case 1: // accelerometer input
       // the device only really runs in a small range normally
-      inVal = map(accelVal, 270, 370, 0, 1000);
+      inVal = map(accelVal, 250, 450, 0, 1000);
       inputName = "accelerometer";
       break;
     case 2: // photoresistor input
@@ -147,7 +147,7 @@ void loop() {
   // report serial and LCD feedback every WAIT milliseconds
   if (millis() - timer >= WAIT) {
     Serial.println((String)"input: " + inputName + ", value = " + inVal + \
-                   "; output: " + outputName + ", value = " + outVal);
+                   ";\t output: " + outputName + ", value = " + outVal);
     timer = millis(); // reset the timer to the current time
   }
 
