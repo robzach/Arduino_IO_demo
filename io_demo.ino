@@ -24,6 +24,8 @@
 */
 
 #include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 // inputs
 const int POTPIN = A0;
@@ -43,6 +45,10 @@ const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
 unsigned long timer;
 unsigned long WAIT = 500; // 500 milliseconds = 1/2 second
 
+ /* Create an LCD display object called "screen" with I2C address 0x27
+    which is 16 columns wide and 2 rows tall. You can use any name you'd like. */
+LiquidCrystal_I2C screen(0x3f, 16, 2);
+
 Servo gaugeMotor;
 
 void setup() {
@@ -58,6 +64,9 @@ void setup() {
   pinMode(VIBRATIONPIN, OUTPUT);
 
   gaugeMotor.attach(SERVOPIN);
+
+  screen.init();
+  screen.backlight();
 
   Serial.begin(9600);
 }
@@ -95,16 +104,16 @@ void loop() {
   switch (inputMode) {
     case 0: // potentiometer input
       inVal = map(potVal, 0, 1023, 0, 1000);
-      inputName = "potentiometer";
+      inputName = "pot'meter";
       break;
     case 1: // accelerometer input
       // the device only really runs in a small range normally
       inVal = map(accelVal, 250, 450, 0, 1000);
-      inputName = "accelerometer";
+      inputName = "accel'meter";
       break;
     case 2: // photoresistor input
       inVal = map(photoVal, 0, 1023, 0, 1000);
-      inputName = "photoresistor";
+      inputName = "photores.";
       break;
     case 3: // IR proximity sensor input
     default:
@@ -148,6 +157,12 @@ void loop() {
   if (millis() - timer >= WAIT) {
     Serial.println((String)"input: " + inputName + ", value = " + inVal + \
                    ";\t output: " + outputName + ", value = " + outVal);
+    screen.clear();
+    screen.home();
+    screen.print(inputName + " " + inVal);
+    screen.setCursor(0,1);
+    screen.print(outputName + " " + outVal);
+    
     timer = millis(); // reset the timer to the current time
   }
 
