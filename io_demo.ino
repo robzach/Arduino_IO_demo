@@ -39,6 +39,10 @@ const int SERVOPIN = 8;
 const int SPEAKERPIN = 10;
 const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
 
+// variables for timing
+unsigned long timer;
+unsigned long WAIT = 500; // 500 milliseconds = 1/2 second
+
 Servo gaugeMotor;
 
 void setup() {
@@ -52,9 +56,9 @@ void setup() {
   pinMode(LEDPIN, OUTPUT);
   pinMode(SPEAKERPIN, OUTPUT);
   pinMode(VIBRATIONPIN, OUTPUT);
-  
+
   gaugeMotor.attach(SERVOPIN);
-  
+
   Serial.begin(9600);
 }
 
@@ -75,18 +79,18 @@ void loop() {
 
   // increment modes as per button presses
   // TO DO: debounce these
-  if (digitalRead(INPUTMODEPIN) == LOW){
+  if (digitalRead(INPUTMODEPIN) == LOW) {
     inputMode++;
     inputMode %= 4; // wrap back to 0 if at 4
   }
-  if (digitalRead(OUTPUTMODEPIN) == LOW){
+  if (digitalRead(OUTPUTMODEPIN) == LOW) {
     outputMode++;
     outputMode %= 4; // wrap back to 0 if at 4
   }
 
   // read selected input into the master input variable
   static int inVal;
-  switch (inputMode){
+  switch (inputMode) {
     case 0: // potentiometer input
       inVal = potVal;
       inputName = "potentiometer";
@@ -110,7 +114,7 @@ void loop() {
   int outVal = map(inVal, 0, 1023, 0, 255);
 
   // drive selected output with appropriate value
-  switch (outputMode){
+  switch (outputMode) {
     case 0: // LED output
       noTone(SPEAKERPIN); // turn off speaker (if on)
       analogWrite(LEDPIN, map(inVal, 0, 1023, 0, 255));
@@ -132,4 +136,12 @@ void loop() {
       outputName = "servo";
       break;
   }
+
+  // report serial and LCD feedback every WAIT milliseconds
+  if(millis() - timer >= WAIT){
+    Serial.println((String)"input: " + inputName + ", value = " + inVal + \
+    "; output: " + outputName + ", value = " + outVal);
+    timer = millis(); // reset the timer to the current time 
+  }
+
 }
