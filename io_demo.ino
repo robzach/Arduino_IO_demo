@@ -52,12 +52,19 @@ void setup() {
   pinMode(LEDPIN, OUTPUT);
   pinMode(SPEAKERPIN, OUTPUT);
   pinMode(VIBRATIONPIN, OUTPUT);
+  
   gaugeMotor.attach(SERVOPIN);
+  
+  Serial.begin(9600);
 }
 
 void loop() {
   // mode variables (static type so they don't reset every loop)
   static int inputMode, outputMode;
+
+  // message variables
+  static String inputName = "";
+  static String outputName = "";
 
   // read all sensors
   int potVal = analogRead(POTPIN);
@@ -82,16 +89,20 @@ void loop() {
   switch (inputMode){
     case 0: // potentiometer input
       inVal = potVal;
+      inputName = "potentiometer";
       break;
     case 1: // accelerometer input
       inVal = accelVal;
+      inputName = "accelerometer";
       break;
     case 2: // photoresistor input
       inVal = photoVal;
+      inputName = "photoresistor";
       break;
     case 3: // IR proximity sensor input
     default:
       inVal = IRVal;
+      intputName = "IR prox.";
       break;
   }
 
@@ -103,18 +114,22 @@ void loop() {
     case 0: // LED output
       noTone(SPEAKERPIN); // turn off speaker (if on)
       analogWrite(LEDPIN, map(inVal, 0, 1023, 0, 255));
+      outputName = "LED";
       break;
     case 1: // speaker output
       tone(SPEAKERPIN, map(inVal, 0, 1023, 150, 3000));
+      outputName = "speaker";
       break;
     case 2: // vibration output
       noTone(SPEAKERPIN);
       analogWrite(VIBRATIONPIN, map(inVal, 0, 1023, 0, 255));
+      outputName = "vibration";
       break;
     case 3: // servo output
     default:
       noTone(SPEAKERPIN);
       gaugeMotor.write(map(inVal, 0, 1023, 10, 170));
+      outputName = "servo";
       break;
   }
 }
