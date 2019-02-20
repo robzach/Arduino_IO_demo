@@ -42,10 +42,11 @@ const int SPEAKERPIN = 10;
 const int VIBRATIONPIN = 11; // must be a PWM pin to use analogWrite
 
 // variables for timing
-unsigned long timer;
-unsigned long WAIT = 500; // 500 milliseconds = 1/2 second
+unsigned long serialTimer, LCDtimer;
+unsigned long LONGWAIT = 500; // 500 milliseconds = 1/2 second
+unsigned long SHORTWAIT = 200; // 200 milliseconds = 1/5 second
 
- /* Create an LCD display object called "screen" with I2C address 0x27
+ /* Create an LCD display object called "screen" with I2C address 0x3f
     which is 16 columns wide and 2 rows tall. You can use any name you'd like. */
 LiquidCrystal_I2C screen(0x3f, 16, 2);
 
@@ -88,12 +89,12 @@ void loop() {
 
   // increment modes as per button presses
   if (digitalRead(INPUTMODEPIN) == LOW) {
-    delay(5); // very simple debounce
+    delay(200); // very simple debounce
     inputMode++;
     inputMode %= 4; // wrap back to 0 if at 4
   }
   if (digitalRead(OUTPUTMODEPIN) == LOW) {
-    delay(5); // very simple debounce
+    delay(200); // very simple debounce
     outputMode++;
     outputMode %= 4; // wrap back to 0 if at 4
   }
@@ -156,17 +157,23 @@ void loop() {
       break;
   }
 
-  // report serial and LCD feedback every WAIT milliseconds
-  if (millis() - timer >= WAIT) {
+  // report serial feedback every LONGWAIT milliseconds
+  if (millis() - serialTimer >= LONGWAIT) {
     Serial.println((String)"input: " + inputName + ", value = " + inVal + \
                    ";\t output: " + outputName + ", value = " + outVal);
+    
+    serialTimer = millis(); // reset the timer to the current time
+  }
+
+  // report LCD data every SHORTWAIT milliseconds
+  if (millis() - LCDtimer >= SHORTWAIT){
     screen.clear();
     screen.home();
     screen.print(inputName + " " + inVal);
     screen.setCursor(0,1);
     screen.print(outputName + " " + outVal);
-    
-    timer = millis(); // reset the timer to the current time
+
+    LCDtimer = millis();
   }
 
 }
