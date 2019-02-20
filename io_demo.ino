@@ -46,8 +46,8 @@ unsigned long serialTimer, LCDtimer;
 unsigned long LONGWAIT = 500; // 500 milliseconds = 1/2 second
 unsigned long SHORTWAIT = 200; // 200 milliseconds = 1/5 second
 
- /* Create an LCD display object called "screen" with I2C address 0x3f
-    which is 16 columns wide and 2 rows tall. You can use any name you'd like. */
+/* Create an LCD display object called "screen" with I2C address 0x3f
+   which is 16 columns wide and 2 rows tall. You can use any name you'd like. */
 LiquidCrystal_I2C screen(0x3f, 16, 2);
 
 Servo gaugeMotor;
@@ -108,19 +108,36 @@ void loop() {
       inputName = "pot'meter";
       break;
     case 1: // accelerometer input
-      // the device only really runs in a small range normally
-      inVal = map(accelVal, 250, 450, 0, 1000);
-      inputName = "accel'meter";
-      break;
+      { // autoranging feature
+        static int low = accelVal;
+        static int high = accelVal;
+        if (accelVal < low) low = accelVal;
+        if (accelVal > high) high = accelVal;
+        inVal = map(accelVal, 250, 450, 0, 1000);
+        inputName = "accel'meter";
+        break;
+      }
     case 2: // photoresistor input
-      inVal = map(photoVal, 0, 1023, 0, 1000);
-      inputName = "photores.";
-      break;
+      {
+        static int low = photoVal;
+        static int high = photoVal;
+        if (photoVal < low) low = photoVal;
+        if (photoVal > high) high = photoVal;
+        inVal = map(photoVal, low, high, 0, 1000);
+        inputName = "photores.";
+        break;
+      }
     case 3: // IR proximity sensor input
     default:
-      inVal = map(IRVal, 0, 1023, 0, 1000);
-      inputName = "IR prox.";
-      break;
+      {
+        static int low = IRVal;
+        static int high = IRVal;
+        if (IRVal < low) low = IRVal;
+        if (IRVal > high) high = IRVal;
+        inVal = map(IRVal, low, high, 0, 1000);
+        inputName = "IR prox.";
+        break;
+      }
   }
 
   // variable to hold calculated output value
@@ -161,16 +178,16 @@ void loop() {
   if (millis() - serialTimer >= LONGWAIT) {
     Serial.println((String)"input: " + inputName + ", value = " + inVal + \
                    ";\t output: " + outputName + ", value = " + outVal);
-    
+
     serialTimer = millis(); // reset the timer to the current time
   }
 
   // report LCD data every SHORTWAIT milliseconds
-  if (millis() - LCDtimer >= SHORTWAIT){
+  if (millis() - LCDtimer >= SHORTWAIT) {
     screen.clear();
     screen.home();
     screen.print(inputName + " " + inVal);
-    screen.setCursor(0,1);
+    screen.setCursor(0, 1);
     screen.print(outputName + " " + outVal);
 
     LCDtimer = millis();
